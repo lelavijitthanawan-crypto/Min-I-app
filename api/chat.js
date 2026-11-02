@@ -1,27 +1,35 @@
-async function sendMessage(userMessage) {
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
+    const apiKey = process.env.GROQ_API_KEY;
+
     try {
-        const response = await fetch('/api/chat', {
+        const { messages } = req.body;
+
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                messages: [
-                    { role: 'user', content: userMessage }
-                ]
-            })
+                model: 'llama-3.3-70b-versatile',
+                messages: messages,
+            }),
         });
 
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
+        if (!groqResponse.ok) {
+            const errData = await groqResponse.json();
+            return res.status(groqResponse.status).json(errData);
         }
 
-        const data = await response.json();
-        const botReply = data.choices[0].message.content;
-        return botReply;
+        const data = await groqResponse.json();
+        return res.status(200).json(data);
 
     } catch (error) {
-        console.error('Fetch error:', error);
-        throw error;
+        console.error('API Error:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 }
