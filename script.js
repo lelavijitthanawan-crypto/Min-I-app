@@ -1,4 +1,4 @@
-const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+
 
 let characters = JSON.parse(localStorage.getItem('real_chats_app')) || [
     { id: '1', name: 'Ike', traits: 'Sarcastic, deeply cares but acts distant, uses lowercase.' }
@@ -169,33 +169,6 @@ function renderMessages() {
     container.scrollTop = container.scrollHeight;
 }
 
-async function sendMessage(userMessage) {
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                messages: [
-                    { role: 'user', content: userMessage }
-                ]
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const botReply = data.choices[0].message.content;
-        return botReply;
-
-    } catch (error) {
-        console.error('Fetch error:', error);
-        throw error;
-    }
-}
 
 function addMessageUI(text, sender, isNew = true, timeStr = null) {
     const container = document.getElementById('chatMessages');
@@ -324,21 +297,24 @@ async function fetchAiResponse(character, systemPrompt) {
     const typingEl = document.getElementById('typingIndicator');
 
     try {
-        const res = await fetch(API_URL, {
+        // ยิงเข้า Serverless Proxy แทน และไม่ต้องแนบ Authorization Header
+        const res = await fetch('/api/chat', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "llama-3.1-8b-instant",
                 messages: [
                     { role: "system", content: systemPrompt },
                     ...character.history.map(m => ({ role: m.role, content: m.content })).slice(-12)
-                ],
-                temperature: 0.95
+                ]
             })
         });
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error?.message || `Server error: ${res.status}`);
+        }
 
         const data = await res.json();
         typingEl.style.display = 'none';
@@ -346,7 +322,7 @@ async function fetchAiResponse(character, systemPrompt) {
         if (data.choices && data.choices[0] && data.choices[0].message.content) {
             const rawReply = data.choices[0].message.content.trim();
 
-            // 🛠️ ใช้อย่างแม่นยำด้วย Smart Splitter
+           
             const bubbles = smartSplitText(rawReply);
             const replyTime = getCurrentRealTime();
 
@@ -355,7 +331,7 @@ async function fetchAiResponse(character, systemPrompt) {
             });
             saveData();
 
-            // ทยอยส่งทีละบับเบิ้ลโดยเว้นช่วงสั้นๆ 1.2 - 2.5 วินาที
+            
             let accumulatedDelay = 0;
             bubbles.forEach((bText) => {
                 accumulatedDelay += 1200 + Math.random() * 1300;
