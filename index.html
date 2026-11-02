@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realistic Chat Roleplay</title>
+</head>
+
+<body>
+  <div class="phone-container">
+    <div class="status-bar">
+      <span id="statusBarTime">9:41 AM</span>
+      <span>📶 5G 🔋 100%</span>
+    </div>
+    <div class="notif-banner" id="notifBanner" onclick="clickNotif()">
+      <div class="notif-icon">💬</div>
+      <div class="notif-body">
+        <div class="notif-title" id="notifTitle">Name</div>
+        <div class="notif-text" id="notifText">Message preview...</div>
+      </div>
+    </div>
+    <div class="screen active" id="homeScreen">
+      <div class="header">
+        <span class="header-title">Messages</span>
+        <button class="btn-action" onclick="openModal()">+ Add</button>
+      </div>
+      <div class="chat-list" id="chatList"></div>
+    </div>
+    <div class="screen" id="chatScreen">
+      <div class="header">
+        <button class="btn-action" onclick="showHomeScreen()">‹ Back</button>
+        <div class="header-title">
+          <span id="chatTitle">Name</span>
+          <span class="header-subtitle" id="chatSubtitle">online</span>
+        </div>
+        <button class="btn-action" style="color: #ff7675;" onclick="clearHistory()">Reset</button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="typing-indicator" id="typingIndicator">typing...</div>
+      <form class="chat-input-area" id="chatForm">
+        <input type="text" id="userInput" placeholder="Message..." autocomplete="off" required>
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3 id="modalTitle">Character Details</h3>
+      <label>Character Name</label>
+      <input type="text" id="cName" placeholder="Name" required>
+      <label>Personality Traits & Story</label>
+      <textarea id="cTraits" placeholder="Describe personality..."></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+        <button style="padding:8px 14px; background:#555; color:white; border:none; border-radius:8px; cursor:pointer;"
+          onclick="closeModal()">Cancel</button>
+        <button
+          style="padding:8px 14px; background:#6c5ce7; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;"
+          onclick="saveCharacter()">Save</button>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
